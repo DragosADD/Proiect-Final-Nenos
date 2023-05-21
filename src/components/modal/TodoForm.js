@@ -44,7 +44,7 @@ export default function TodoForm(props) {
     }
   }, []);
 
-  //Pentru button, ca nu se arate buttonu incontinuu
+  //Just so that the button doesnt re render and flashes
   useEffect(() => {
     const identifier = setTimeout(() => {
       setFormIsValid(
@@ -74,6 +74,7 @@ export default function TodoForm(props) {
         whatToDo: description,
         outputTimeType: outputTimeType,
         id: ctx.loadedToDo.id,
+        isDone: ctx.loadedToDo.isDone,
       });
       setTime("");
       setDescription("");
@@ -81,8 +82,7 @@ export default function TodoForm(props) {
       return;
     }
 
-    //Daca inputul era validat si butonu aparea dar dupa stergeam valoarea si apasam buttonul
-    //cat timp eram focusat pe input valoarea era considerata valida
+    //making sure that it's impossible to enter bad data
     if (validate("time") && validate("description")) {
       let calculatedTime = time;
       if (outputTimeType === "hours") {
@@ -93,6 +93,7 @@ export default function TodoForm(props) {
         whatToDo: description,
         outputTimeType: outputTimeType,
         id: random(),
+        isDone: false,
       });
       console.log(ctx.items[ctx.items.length - 1]);
       setTime("");
@@ -101,7 +102,7 @@ export default function TodoForm(props) {
     }
   }
 
-  //Ma asigur ca este valid ca se se schimbe instant ce scriu ceva
+  //validation on every change
   function getValueTime(e) {
     const value = e.target.value;
     setTime(value);
@@ -114,7 +115,7 @@ export default function TodoForm(props) {
     setIsValidDescription(validate("description"));
   }
 
-  //Pentru a vedea daca s au atins input fieldurile
+  //to see if the fields have been touched
   function validateInputTime() {
     setisValidTime(validate("time"));
     setIsTimeTouched(true);

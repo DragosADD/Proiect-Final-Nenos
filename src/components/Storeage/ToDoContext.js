@@ -7,6 +7,7 @@ const ToDoContext = React.createContext({
   addToDo: (todo) => {},
   removeToDo: (id) => {},
   updateToDo: (id) => {},
+  deleteAllToDo: (arrOfID) => {},
 });
 
 export default ToDoContext;

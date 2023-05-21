@@ -1,6 +1,7 @@
 import TodoItemTemplate from "./TodoItemTemplate";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import ToDoContext from "../Storeage/ToDoContext";
+import { Select, MenuItem, FormGroup, Button, Box } from "@mui/material";
 
 //usefull functions
 function eitherHourOrMinute(todo) {
@@ -13,7 +14,18 @@ function eitherHourOrMinute(todo) {
 }
 
 export default function TodoItem(props) {
+  const [selectedAction, setSelectedAction] = useState("");
+  const [checkedIDs, setCheckedIDs] = useState([]); // Corrected variable name
   const ctx = useContext(ToDoContext);
+
+  const handleCheckboxChange = (e, item) => {
+    const checkboxId = item.id;
+    if (e.target.checked) {
+      setCheckedIDs((prevIDs) => [...prevIDs, checkboxId]); // Use correct setter function
+    } else {
+      setCheckedIDs((prevIDs) => prevIDs.filter((el) => el !== checkboxId)); // Use correct setter function
+    }
+  };
 
   function deleteHandler(id) {
     ctx.removeToDo(id);
@@ -24,7 +36,22 @@ export default function TodoItem(props) {
     props.open();
   }
 
-  const ToBeRedendered = ctx.items.map((el) => {
+  function handleActionSelect(e) {
+    setSelectedAction(e.target.value);
+  }
+
+  function handleActionButtonClick() {
+    if (selectedAction === "delete") {
+      ctx.deleteAllToDo(checkedIDs);
+    }
+    if (selectedAction === "done") {
+      ctx.markAsDone(checkedIDs);
+    }
+    setSelectedAction("");
+    setCheckedIDs([]); // Use correct setter function
+  }
+
+  function toDo(el) {
     return (
       <TodoItemTemplate
         duration={eitherHourOrMinute(el)}
@@ -32,42 +59,68 @@ export default function TodoItem(props) {
         key={el.id}
         onDelete={() => deleteHandler(el.id)}
         onUpdate={() => getHandler(el.id)}
+        onBoxChange={(e) => handleCheckboxChange(e, el)} // Use correct function name
+        isChecked={checkedIDs.includes(el.id)} // Use correct variable name
+        isDone={el.isDone}
       />
     );
+  }
+
+  const ToBeRendered = ctx.items.map((el) => {
+    const varRouter = props.renderCase;
+    if (varRouter === "all") {
+      return toDo(el);
+    }
+    if (varRouter === "to-be-done") {
+      if (el.isDone === false) {
+        return toDo(el);
+      }
+    }
+    if (varRouter === "done") {
+      if (el.isDone === true) {
+        return toDo(el);
+      }
+    }
+    return;
   });
 
-  return <React.Fragment>{ToBeRedendered}</React.Fragment>;
+  return (
+    <React.Fragment>
+      <Box
+        sx={{
+          width: "40%",
+          "@media (max-width: 768px)": { width: "60%" },
+        }}
+      >
+        <FormGroup>{ToBeRendered}</FormGroup>
+      </Box>
+      {checkedIDs.length > 0 && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Select
+            value={selectedAction || ""}
+            onChange={handleActionSelect}
+            displayEmpty
+            variant="outlined"
+            size="small"
+            sx={{ minWidth: 120 }}
+          >
+            <MenuItem value="" disabled>
+              Select Action
+            </MenuItem>
+            <MenuItem value="delete">Delete</MenuItem>
+            <MenuItem value="done">Done</MenuItem>
+          </Select>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleActionButtonClick}
+            disabled={!selectedAction || checkedIDs.length === 0}
+            size="small"
+          >
+            Perform Action
+          </Button>
+        </Box>
+      )}
+    </React.Fragment>
+  );
 }
-
-// function randomNumber() {
-//   return Math.floor(Math.random() * 1000000);
-// }
-
-// export default function TodoItem(props) {
-//   //getting to data to be rendered
-//   const ctx = useContext(ToDoContext);
-
-//   //rendering items
-//   const ToBeRedendered = ctx.items.map((el) => {
-//     function deleteHandler() {
-//       ctx.removeToDo(el.id);
-//     }
-//     function updateHandler() {
-//       ctx.getToDo(el.id);
-//       props.open();
-//     }
-
-//     return (
-//       <TodoItemTemplate
-//         duration={eitherHourOrMinute(el)}
-//         text={el.whatToDo}
-//         key={el.id}
-//         onDelete={deleteHandler}
-//         onUpdate={updateHandler}
-//       ></TodoItemTemplate>
-//     );
-//   });
-
-//   //rendering the whole list even if the dame is TodoItem
-//   return <React.Fragment>{ToBeRedendered}</React.Fragment>;
-// }

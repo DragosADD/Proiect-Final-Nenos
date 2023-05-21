@@ -14,7 +14,6 @@ const toDoReducer = (state, action) => {
   }
   if (action.type === "REMOVE") {
     const updatedItems = state.items.filter((el) => el.id !== action.id);
-    console.log(updatedItems);
     return {
       ...state,
       items: updatedItems,
@@ -46,6 +45,27 @@ const toDoReducer = (state, action) => {
       loadedToDo: loadedToDo || {},
     };
   }
+
+  if (action.type === "allDelete") {
+    const updatedItems = state.items.filter(
+      (el) => !action.arrID.includes(el.id)
+    );
+    return {
+      ...state,
+      items: updatedItems,
+    };
+  }
+  if (action.type === "Done") {
+    const updatedItems = state.items.map((el) => {
+      if (action.arrID.includes(el.id)) el.isDone = true;
+      return el;
+    });
+    return {
+      ...state,
+      items: updatedItems,
+    };
+  }
+
   return defaultToDoState;
 };
 
@@ -98,6 +118,19 @@ export default function ToDoProvider(props) {
     });
   };
 
+  const deleteAllHandler = (arrID) => {
+    dispatchToDoAction({
+      type: "allDelete",
+      arrID: arrID,
+    });
+  };
+  const markDoneHandler = (arrID) => {
+    dispatchToDoAction({
+      type: "Done",
+      arrID: arrID,
+    });
+  };
+
   const toDoContex = {
     items: toDoState.items,
     loadedToDo: toDoState.loadedToDo,
@@ -105,6 +138,8 @@ export default function ToDoProvider(props) {
     addToDo: addToDoHandler,
     removeToDo: removeToDoHandler,
     updateToDo: updateToDoHandler,
+    deleteAllToDo: deleteAllHandler,
+    markAsDone: markDoneHandler,
   };
 
   return (

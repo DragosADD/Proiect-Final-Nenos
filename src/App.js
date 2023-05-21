@@ -1,20 +1,14 @@
 import React from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Grid,
-  Button,
-  Box,
-} from "@mui/material";
-// import TodoList from "./TodoList";
+import { Typography, Container } from "@mui/material";
+
 import ModalUi from "./components/modal/ModalUi";
 import TodoItem from "./components/Layout/TodoItem";
-// import { Link } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import HeaderApp from "./components/Layout/HeaderApp";
 
 export default function App() {
   const [isOpen, setIsOpen] = React.useState(false);
+  // const [add, setAdd] = React.useState(false);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -24,68 +18,87 @@ export default function App() {
     setIsOpen(false);
   };
 
+  // function RenderItems({ giveProp }) {
+  //   setAdd(true);
+  //   return <TodoItem renderCase={giveProp} open={handleOpen} />;
+  // }
+
+  // function RenderNothing() {
+  //   setAdd(false);
+  //   return (
+  //     <div style={{ textAlign: "center", marginTop: "50px" }}>
+  //       <Typography variant="h2" color="primary" component="h1" gutterBottom>
+  //         Not found
+  //       </Typography>
+  //     </div>
+  //   );
+  // }
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <React.Fragment>
+          {" "}
+          <TodoItem renderCase="all" open={handleOpen} />
+          <ModalUi
+            onOpenHandler={handleOpen}
+            onCloseHandler={handleClose}
+            isOpen={isOpen}
+          />
+        </React.Fragment>
+      ),
+    },
+    {
+      path: "/to-do",
+      element: (
+        <React.Fragment>
+          {" "}
+          <TodoItem renderCase="to-be-done" open={handleOpen} />
+          <ModalUi
+            onOpenHandler={handleOpen}
+            onCloseHandler={handleClose}
+            isOpen={isOpen}
+          />
+        </React.Fragment>
+      ),
+    },
+    {
+      path: "/done",
+      element: (
+        <React.Fragment>
+          {" "}
+          <TodoItem renderCase="done" open={handleOpen} />
+        </React.Fragment>
+      ),
+    },
+    {
+      path: "*",
+      element: (
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
+          <Typography variant="h2" color="primary" component="h1" gutterBottom>
+            Not found
+          </Typography>
+        </div>
+      ),
+    },
+  ]);
+
   return (
-    <div>
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <label>Your to do App</label>
-          <Container maxWidth="lg">
-            <Grid container alignItems="center" justifyContent="center">
-              <Grid item>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    ml: "-5rem",
-                  }}
-                >
-                  <Button component="a" href="/" color="inherit" sx={{ mx: 1 }}>
-                    All
-                  </Button>
-                  <Button
-                    component="a"
-                    href="/done"
-                    color="inherit"
-                    sx={{ mx: 1 }}
-                  >
-                    Done
-                  </Button>
-                  <Button
-                    component="a"
-                    href="/todo"
-                    color="inherit"
-                    sx={{ mx: 1 }}
-                  >
-                    To-Do
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </Container>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="lg" style={{ marginTop: "1rem" }}>
-        <Grid
-          container
-          spacing={2}
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-          style={{ minHeight: "calc(100vh - 64px)" }}
-        >
-          <Grid item xs={12} md={8} lg={6} xl={4}>
-            {/* Update the grid item configuration */}
-            <TodoItem open={handleOpen}></TodoItem>
-          </Grid>
-          <Grid item xs={12}>
-            <ModalUi
-              onOpenHandler={handleOpen}
-              onCloseHandler={handleClose}
-              isOpen={isOpen}
-            />
-          </Grid>
-        </Grid>
+    <React.Fragment>
+      <HeaderApp></HeaderApp>
+      <Container
+        maxWidth="lg"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "calc(100vh - 64px)",
+          marginTop: "74px", // Adjust the top margin to match the height of the AppBar
+        }}
+      >
+        <RouterProvider router={router} />
       </Container>
-    </div>
+    </React.Fragment>
   );
 }
